@@ -8,11 +8,25 @@ const START_CHARACTERISTIC_UUID = '19b10012-e8f2-537e-4f6c-d104768a1214';
 const PAUSE_CHARACTERISTIC_UUID = '6995b940-b6f4-11eb-8529-0242ac130003';
 
 class BLEService {
-  manager: BleManager;
+  manager: BleManager | null = null;
   device: Device | null = null;
 
   constructor() {
-    this.manager = new BleManager();
+    // Initialize BLE manager lazily to avoid issues on web
+    if (Platform.OS !== 'web') {
+      try {
+        this.manager = new BleManager();
+      } catch (error) {
+        console.warn('BLE Manager initialization failed:', error);
+      }
+    }
+  }
+
+  private getManager(): BleManager {
+    if (!this.manager) {
+      throw new Error('BLE is not available on this platform');
+    }
+    return this.manager;
   }
 
   async requestPermissions(): Promise<boolean> {
