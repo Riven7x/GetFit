@@ -131,6 +131,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Implemented profile update endpoint with user weight, height, gender. Tested with curl - working correctly"
+      - working: true
+        agent: "testing"
+        comment: "Comprehensive testing completed: ✅ /api/auth/me endpoint returns complete user profile correctly ✅ /api/profile PUT endpoint updates name, weight, height successfully ✅ Updated data persisted and returned correctly ✅ Authentication required and working. Profile management fully functional."
         
   - task: "Workout Session Creation"
     implemented: true
@@ -143,6 +146,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Implemented workout creation endpoint with exercise tracking and calorie calculation. Tested with curl - working correctly"
+      - working: true
+        agent: "testing"
+        comment: "Comprehensive testing completed: ✅ /api/workouts POST creates workout with multiple exercises successfully ✅ Exercise merging for same date works correctly (30 pushups merged from 20+10) ✅ Calorie calculation and totaling accurate ✅ Response format correct with workout_id ✅ Authentication required. Workout creation and merging fully functional."
         
   - task: "Daily Stats API"
     implemented: true
@@ -155,6 +161,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Implemented today's workout stats endpoint with exercise counts and calories. Tested with curl - working correctly"
+      - working: true
+        agent: "testing"
+        comment: "Comprehensive testing completed: ✅ /api/workouts/today returns correct daily stats (30 pushups, 30 squats, 50 arm circles, 76.0 calories) ✅ Exercise aggregation working correctly ✅ Returns zero stats when no workout exists ✅ Date format correct (YYYY-MM-DD) ✅ Authentication required. Daily stats API fully functional."
         
   - task: "Weekly Stats API"
     implemented: true
@@ -167,6 +176,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Implemented weekly stats endpoint with 7-day breakdown. Tested with curl - working correctly"
+      - working: true
+        agent: "testing"
+        comment: "Comprehensive testing completed: ✅ /api/workouts/weekly returns 7-day breakdown correctly ✅ Week calculation works (start: 2026-02-04, showing 7 days) ✅ Exercise totals accurate (110 total exercises, 76.0 calories) ✅ Days array contains complete DailyStats objects ✅ Authentication required. Weekly stats API fully functional."
 
 frontend:
   - task: "Authentication Flow (Login/Register Screens)"
