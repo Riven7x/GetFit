@@ -1,6 +1,7 @@
 import { BleManager, Device, Characteristic } from 'react-native-ble-plx';
 import { Platform, PermissionsAndroid } from 'react-native';
 import * as ExpoDevice from 'expo-device';
+import { Buffer } from 'buffer';
 
 const SERVICE_UUID = 'e267751a-ae76-11eb-8529-0242ac130003';
 const EXERCISE_CHARACTERISTIC_UUID = '00002a19-0000-1000-8000-00805f9b34fb';
