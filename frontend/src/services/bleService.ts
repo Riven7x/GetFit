@@ -64,7 +64,7 @@ class BLEService {
       throw new Error('Bluetooth permissions not granted');
     }
 
-    this.manager.startDeviceScan(null, null, (error, device) => {
+    this.getManager().startDeviceScan(null, null, (error, device) => {
       if (error) {
         console.error('Scan error:', error);
         return;
@@ -77,12 +77,14 @@ class BLEService {
   }
 
   stopScan(): void {
-    this.manager.stopDeviceScan();
+    if (this.manager) {
+      this.manager.stopDeviceScan();
+    }
   }
 
   async connectToDevice(deviceId: string): Promise<Device> {
     try {
-      const device = await this.manager.connectToDevice(deviceId);
+      const device = await this.getManager().connectToDevice(deviceId);
       this.device = device;
       await device.discoverAllServicesAndCharacteristics();
       return device;
