@@ -1,6 +1,5 @@
 import { BleManager, Device, Characteristic } from 'react-native-ble-plx';
 import { Platform, PermissionsAndroid } from 'react-native';
-import * as ExpoDevice from 'expo-device';
 import { Buffer } from 'buffer';
 
 const SERVICE_UUID = 'e267751a-ae76-11eb-8529-0242ac130003';
@@ -18,7 +17,7 @@ class BLEService {
 
   async requestPermissions(): Promise<boolean> {
     if (Platform.OS === 'android') {
-      if ((ExpoDevice.platformApiLevel ?? -1) < 31) {
+      if (Platform.Version < 31) {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
           {
