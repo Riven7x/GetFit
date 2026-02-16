@@ -54,25 +54,48 @@ class BLEService {
 
         // Step 2: Request Bluetooth Permissions for Android 12+
         if (Platform.Version >= 31) {
-          console.log('Requesting Bluetooth permissions for Android 12+...');
+          console.log('Requesting BLUETOOTH_SCAN permission...');
           
-          const permissions = [
+          const scanPermission = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-            PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-          ];
-
-          const granted = await PermissionsAndroid.requestMultiple(permissions);
+            {
+              title: 'Bluetooth Scan Permission',
+              message: 'This app needs access to scan for nearby Bluetooth devices (fitness trackers).',
+              buttonPositive: 'OK',
+            }
+          );
           
-          const scanGranted = granted['android.permission.BLUETOOTH_SCAN'] === PermissionsAndroid.RESULTS.GRANTED;
-          const connectGranted = granted['android.permission.BLUETOOTH_CONNECT'] === PermissionsAndroid.RESULTS.GRANTED;
+          console.log('BLUETOOTH_SCAN result:', scanPermission);
           
-          console.log('BLUETOOTH_SCAN:', scanGranted);
-          console.log('BLUETOOTH_CONNECT:', connectGranted);
-
-          if (!scanGranted || !connectGranted) {
+          if (scanPermission !== PermissionsAndroid.RESULTS.GRANTED) {
             Alert.alert(
-              'Bluetooth Permission Required',
-              'Please grant Nearby devices permission in Settings to scan for fitness devices.',
+              'Permission Denied',
+              'Please allow Nearby devices permission in Settings to scan for fitness devices.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Open Settings', onPress: () => Linking.openSettings() }
+              ]
+            );
+            return false;
+          }
+
+          console.log('Requesting BLUETOOTH_CONNECT permission...');
+          
+          const connectPermission = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+            {
+              title: 'Bluetooth Connect Permission',
+              message: 'This app needs access to connect to Bluetooth devices.',
+              buttonPositive: 'OK',
+            }
+          );
+          
+          console.log('BLUETOOTH_CONNECT result:', connectPermission);
+          
+          if (connectPermission !== PermissionsAndroid.RESULTS.GRANTED) {
+            Alert.alert(
+              'Permission Denied',
+              'Please allow Bluetooth permission in Settings to connect to fitness devices.',
               [
                 { text: 'Cancel', style: 'cancel' },
                 { text: 'Open Settings', onPress: () => Linking.openSettings() }
@@ -81,7 +104,7 @@ class BLEService {
             return false;
           }
           
-          console.log('All Bluetooth permissions granted');
+          console.log('All Bluetooth permissions granted!');
           return true;
         } else {
           // Android < 12 only needs location
