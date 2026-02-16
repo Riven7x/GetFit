@@ -35,89 +35,42 @@ class BLEService {
     
     if (Platform.OS === 'android') {
       try {
-        // Step 1: Request Location Permission (required for BLE scanning on Android)
+        // Request Location Permission (required for BLE scanning on Android)
         console.log('Requesting location permission...');
         const locationStatus = await Location.requestForegroundPermissionsAsync();
         
         if (locationStatus.status !== 'granted') {
           Alert.alert(
             'Location Permission Required',
-            'Bluetooth scanning requires location permission on Android. Please grant it in Settings.',
+            'Bluetooth scanning requires location permission on Android.',
             [
-              { text: 'Cancel', style: 'cancel' },
-              { text: 'Open Settings', onPress: () => Linking.openSettings() }
+              { text: 'OK', onPress: () => Linking.openSettings() }
             ]
           );
           return false;
         }
-        console.log('Location permission granted');
+        console.log('✅ Location permission granted');
 
-        // Step 2: Request Bluetooth Permissions for Android 12+
+        // For Android 12+, Bluetooth permissions need to be in app.json and granted at install
+        // Expo Go may not properly request these at runtime, so we'll proceed and let scan fail if needed
         if (Platform.Version >= 31) {
-          console.log('Requesting BLUETOOTH_SCAN permission...');
+          console.log('ℹ️ Android 12+: Make sure Expo Go has Nearby devices permission in Settings');
           
-          const scanPermission = await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-            {
-              title: 'Bluetooth Scan Permission',
-              message: 'This app needs access to scan for nearby Bluetooth devices (fitness trackers).',
-              buttonPositive: 'OK',
-            }
+          // Show helpful message
+          Alert.alert(
+            'Bluetooth Permission',
+            'If scanning fails, please go to Settings → Apps → Expo Go → Permissions and enable "Nearby devices"',
+            [{ text: 'OK' }]
           );
-          
-          console.log('BLUETOOTH_SCAN result:', scanPermission);
-          
-          if (scanPermission !== PermissionsAndroid.RESULTS.GRANTED) {
-            Alert.alert(
-              'Permission Denied',
-              'Please allow Nearby devices permission in Settings to scan for fitness devices.',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Open Settings', onPress: () => Linking.openSettings() }
-              ]
-            );
-            return false;
-          }
-
-          console.log('Requesting BLUETOOTH_CONNECT permission...');
-          
-          const connectPermission = await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-            {
-              title: 'Bluetooth Connect Permission',
-              message: 'This app needs access to connect to Bluetooth devices.',
-              buttonPositive: 'OK',
-            }
-          );
-          
-          console.log('BLUETOOTH_CONNECT result:', connectPermission);
-          
-          if (connectPermission !== PermissionsAndroid.RESULTS.GRANTED) {
-            Alert.alert(
-              'Permission Denied',
-              'Please allow Bluetooth permission in Settings to connect to fitness devices.',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Open Settings', onPress: () => Linking.openSettings() }
-              ]
-            );
-            return false;
-          }
-          
-          console.log('All Bluetooth permissions granted!');
-          return true;
-        } else {
-          // Android < 12 only needs location
-          console.log('Android < 12: Only location permission needed');
-          return true;
         }
+        
+        console.log('✅ Ready to scan for BLE devices');
+        return true;
       } catch (error) {
-        console.error('Permission request error:', error);
-        Alert.alert('Permission Error', 'Failed to request permissions: ' + error);
+        console.error('Permission error:', error);
         return false;
       }
     } else if (Platform.OS === 'ios') {
-      // iOS handles Bluetooth permissions automatically when scanning
       console.log('iOS: Permissions will be requested automatically');
       return true;
     }
