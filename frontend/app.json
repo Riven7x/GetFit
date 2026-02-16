@@ -50,6 +50,14 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Allow GetFit to use your location to scan for nearby fitness devices."
         }
+      ],
+      [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": true,
+          "modes": ["peripheral", "central"],
+          "bluetoothAlwaysUsageDescription": "Allow GetFit to connect to your fitness tracker device."
+        }
       ]
     ],
     "experiments": {
