@@ -1,6 +1,7 @@
 import { BleManager, Device, Characteristic } from 'react-native-ble-plx';
-import { Platform, PermissionsAndroid } from 'react-native';
+import { Platform, PermissionsAndroid, Alert, Linking } from 'react-native';
 import { Buffer } from 'buffer';
+import * as Location from 'expo-location';
 
 const SERVICE_UUID = 'e267751a-ae76-11eb-8529-0242ac130003';
 const EXERCISE_CHARACTERISTIC_UUID = '00002a19-0000-1000-8000-00805f9b34fb';
@@ -30,31 +31,74 @@ class BLEService {
   }
 
   async requestPermissions(): Promise<boolean> {
+    console.log('Requesting Bluetooth permissions...');
+    
     if (Platform.OS === 'android') {
-      if (Platform.Version < 31) {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          {
-            title: 'Location Permission',
-            message: 'Bluetooth requires Location permission',
-            buttonPositive: 'OK',
-          }
-        );
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } else {
-        const result = await PermissionsAndroid.requestMultiple([
-          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-          PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        ]);
+      try {
+        // Step 1: Request Location Permission (required for BLE scanning on Android)
+        console.log('Requesting location permission...');
+        const locationStatus = await Location.requestForegroundPermissionsAsync();
         
-        return (
-          result['android.permission.BLUETOOTH_CONNECT'] === PermissionsAndroid.RESULTS.GRANTED &&
-          result['android.permission.BLUETOOTH_SCAN'] === PermissionsAndroid.RESULTS.GRANTED &&
-          result['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED
-        );
+        if (locationStatus.status !== 'granted') {
+          Alert.alert(
+            'Location Permission Required',
+            'Bluetooth scanning requires location permission on Android. Please grant it in Settings.',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Open Settings', onPress: () => Linking.openSettings() }
+            ]
+          );
+          return false;
+        }
+        console.log('Location permission granted');
+
+        // Step 2: Request Bluetooth Permissions for Android 12+
+        if (Platform.Version >= 31) {
+          console.log('Requesting Bluetooth permissions for Android 12+...');
+          
+          const permissions = [
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+          ];
+
+          const granted = await PermissionsAndroid.requestMultiple(permissions);
+          
+          const scanGranted = granted['android.permission.BLUETOOTH_SCAN'] === PermissionsAndroid.RESULTS.GRANTED;
+          const connectGranted = granted['android.permission.BLUETOOTH_CONNECT'] === PermissionsAndroid.RESULTS.GRANTED;
+          
+          console.log('BLUETOOTH_SCAN:', scanGranted);
+          console.log('BLUETOOTH_CONNECT:', connectGranted);
+
+          if (!scanGranted || !connectGranted) {
+            Alert.alert(
+              'Bluetooth Permission Required',
+              'Please grant Nearby devices permission in Settings to scan for fitness devices.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Open Settings', onPress: () => Linking.openSettings() }
+              ]
+            );
+            return false;
+          }
+          
+          console.log('All Bluetooth permissions granted');
+          return true;
+        } else {
+          // Android < 12 only needs location
+          console.log('Android < 12: Only location permission needed');
+          return true;
+        }
+      } catch (error) {
+        console.error('Permission request error:', error);
+        Alert.alert('Permission Error', 'Failed to request permissions: ' + error);
+        return false;
       }
+    } else if (Platform.OS === 'ios') {
+      // iOS handles Bluetooth permissions automatically when scanning
+      console.log('iOS: Permissions will be requested automatically');
+      return true;
     }
+    
     return true;
   }
 
