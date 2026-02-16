@@ -44,6 +44,12 @@
           "resizeMode": "contain",
           "backgroundColor": "#000"
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow GetFit to use your location to scan for nearby fitness devices."
+        }
       ]
     ],
     "experiments": {
