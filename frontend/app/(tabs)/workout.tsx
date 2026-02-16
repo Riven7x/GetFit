@@ -46,7 +46,26 @@ export default function WorkoutScreen() {
   const handleScan = async () => {
     try {
       setScanning(true);
+      
+      // Request permissions first
+      const hasPermission = await bleService.requestPermissions();
+      
+      if (!hasPermission) {
+        setScanning(false);
+        Alert.alert(
+          'Permissions Required',
+          'Please grant Location and Bluetooth permissions in your phone Settings to scan for devices.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Open Settings', onPress: () => Linking.openSettings() }
+          ]
+        );
+        return;
+      }
+
+      console.log('Starting BLE scan...');
       await bleService.scanForDevices((device) => {
+        console.log('Device found:', device.name, device.id);
         bleService.stopScan();
         setScanning(false);
         setDeviceId(device.id);
@@ -65,11 +84,12 @@ export default function WorkoutScreen() {
         bleService.stopScan();
         setScanning(false);
         if (!deviceId) {
-          Alert.alert('No Device Found', 'Make sure your Get-Fit device is powered on and nearby.');
+          Alert.alert('No Device Found', 'Make sure your Get-Fit device is powered on and nearby. Check Arduino Serial Monitor shows "Bluetooth device active".');
         }
       }, 10000);
     } catch (error: any) {
-      Alert.alert('Scan Error', error.message);
+      console.error('Scan error:', error);
+      Alert.alert('Scan Error', error.message || 'Failed to scan for devices');
       setScanning(false);
     }
   };
