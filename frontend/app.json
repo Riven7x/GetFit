@@ -1,21 +1,24 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "GetFit",
+    "slug": "getfit",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
+    "scheme": "getfit",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.riven7x.getfit",
       "infoPlist": {
         "NSBluetoothAlwaysUsageDescription": "Connect to fitness tracker device",
         "NSBluetoothPeripheralUsageDescription": "Track workouts via BLE device"
       }
     },
     "android": {
+      "package": "com.riven7x.getfit",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000"
